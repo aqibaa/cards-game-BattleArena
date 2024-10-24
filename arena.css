@@ -1,0 +1,112 @@
+
+* {
+    box-sizing: border-box;
+    margin: 0%;
+    padding: 0%;
+}
+
+.hero-card {
+    width: 14rem;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    padding-bottom: 0%;
+    margin: 10px;
+    display: inline-block;
+    text-align: center;
+    position: relative;
+
+}
+
+.container {
+    background-color: white;
+    border-top: 1px solid;
+
+}
+
+.container-fluid {
+    background: url(🔥\ 4K\ Marvel\ Wallpapers\ on\ WallpaperSafari.jpg);
+
+    background-repeat: no-repeat;
+    background-attachment:fixed;
+;
+
+
+}
+
+.hero-card.selected {
+    border-color: green;
+    background-color: #f0f0f0;
+}
+
+.hero-card.selected::before {
+    content: "✔";
+    position: absolute;
+    top: 350px;
+    right: 85px;
+    color: rgb(0, 242, 0);
+    font-size: 30px;
+}
+
+.hero-card.defeated {
+    border-color: gray;
+    filter: grayscale(100%);
+    background-color: #f9f9f9;
+}
+
+.hero-card.winner {
+    border-color: blue;
+    background-color: #d0f0ff;
+}
+
+.progress-bar {
+    width: 0%;
+    height: 20px;
+    background-color: lightgreen;
+}
+
+
+#hero-progress-bar {
+    background-color: rgb(93, 196, 230);
+}
+
+#cost-progress-bar {
+    background-color: lightgreen;
+}
+
+#priority-progress-bar {
+    background-color: lightcoral;
+}
+
+.round {
+    width: 30px;
+    text-align: center;
+    border-radius: 35%;
+    background-color: rgb(27, 27, 27);
+    color: white;
+}
+
+
+.draftsection {
+    display: none;
+}
+
+.card-img {
+    height: 240px;
+    max-width: 230px;
+    border: none;
+    margin: auto;
+    object-fit: cover;
+}
+
+li {
+    list-style: none;
+}
+
+ul {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    padding: 0%;
+}

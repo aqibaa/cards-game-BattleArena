@@ -1,0 +1,451 @@
+
+import heroesData from './heroes.js';  // Assuming this is your heroes.js
+
+const config = {
+    selection: 600,
+    booster: 20,
+    amount: 5,
+    totalCost: 100,
+    totalPriority: 40,
+    hallOfFame: 10
+};
+
+let selectedHeroes = [];
+let villains = [];
+let totalCost = 0;
+let selectedCount = 0;
+let totalPriority = 0;
+let hallOfFameData = [];
+
+
+
+
+
+
+// Start Draft Button
+const hallOfFame = document.getElementById("hall-of-fame-section")
+hallOfFame.style.display = 'none'
+const draftbtn = document.getElementById("start-draft-btn")
+draftbtn.addEventListener("click", startDraft);
+
+let sectionselectedcard = document.getElementById("section-selectedcard")
+sectionselectedcard.style.display = 'none'
+let battlesection = document.getElementById("battle-section")
+battlesection.style.display = 'none'
+
+const showdselected = document.getElementById("show-selectedcard")
+showdselected.addEventListener("click", showdraftt);
+
+
+function startDraft() {
+    sectionselectedcard.style.display = 'block'
+    draftbtn.style.display = 'none'
+    const category = document.querySelector('input[name="category"]:checked').value;
+    let filteredHeroes = heroesData.filter(hero => hero.biography.alignment === category);
+
+
+    const allCategoryInputs = document.querySelectorAll('input[name="category"]');
+    allCategoryInputs.forEach(input => input.disabled = true);
+
+    // Shuffle the heroes array randomly
+    function shuffleArray(filteredHeroes) {
+        for (let i = filteredHeroes.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [filteredHeroes[i], filteredHeroes[j]] = [filteredHeroes[j], filteredHeroes[i]];
+        }
+        return filteredHeroes;
+    }
+
+    displayHeroes(shuffleArray(filteredHeroes).slice(0, config.booster));  // Show limited heroes for the booster pack
+}
+
+
+function displayHeroes(heroList) {
+    const heroListContainer = document.getElementById("hero-list");
+    heroListContainer.innerHTML = "";  // Clear any previously displayed heroes
+
+    heroList.forEach(hero => {
+        const heroCard = createHeroCard(hero);  // Use the createHeroCard function
+
+        const heroStats = calculateHeroStats(hero);
+        heroCard.addEventListener('click', () => {
+            selectHero(hero, heroCard, heroStats);
+        });
+
+        heroListContainer.appendChild(heroCard);
+    });
+}
+
+function calculateHeroStats(hero) {
+    const attack = Math.ceil((hero.powerstats.strength + hero.powerstats.combat + hero.powerstats.power) / 30);
+    const defense = Math.ceil((hero.powerstats.intelligence + hero.powerstats.durability + hero.powerstats.speed) / 30);
+    const priority = Math.ceil((hero.appearance.height + hero.appearance.weight) / 50);
+    const cost = Math.ceil(attack + defense + priority);
+
+    return { attack, defense, priority, cost };
+}
+
+function createHeroCard(hero) {
+    const heroCard = document.createElement("div");
+
+    const heroStats = calculateHeroStats(hero);  // Calculate the stats
+    heroCard.classList.add("hero-card", "col-lg-4", "mt-4", "m-auto", "shadow-lg");
+    heroCard.innerHTML = `
+        <div class='d-flex justify-content-between align-items-center pt-2 pb-2'>  
+                <h5 class="card-title">${hero.name}</h5>
+                <p class="card-text round p-1 cost">${heroStats.cost}</p>
+            </div>
+            <img src="${hero.image.url}" class ="card-img pt-2 " alt="...">
+            <div class="card-body pt-3">
+                <p class='card-text'><b>${hero.biography.alignment.toUpperCase()} / ${hero.appearance.race.toUpperCase()}</b></p>
+                <p class="card-text d-flex justify-content-between m-0"><strong>Strength:</strong> ${hero.powerstats.strength}</p>
+                <p class="card-text d-flex justify-content-between m-0"><strong>Power:</strong> ${hero.powerstats.power}</p>
+                <p class="card-text d-flex justify-content-between m-0"><strong>Speed:</strong> ${hero.powerstats.speed}</p>
+                <p class="card-text d-flex justify-content-between m-0"><strong>Intelligence:</strong> ${hero.powerstats.intelligence}</p>
+                <p class="card-text d-flex justify-content-between m-0"><strong>Combat:</strong> ${hero.powerstats.combat}</p>
+                <p class="card-text d-flex justify-content-between m-0"><strong>Durability:</strong> ${hero.powerstats.durability}</p>    
+                           
+            </div>
+            <div class='d-flex justify-content-between'>
+                <p class="card-text"><b class='priority'>${heroStats.priority}</b></p>
+                <p class="card-text"><b class='attack'>${heroStats.attack}</b> /<b class='defense'> ${heroStats.defense}</b></p>
+            </div>
+        `;
+
+
+    return heroCard;  // Return the hero card element
+}
+
+
+
+function selectHero(hero, heroCard, heroStats) {
+    if (heroCard.classList.contains("selected")) {
+        // Deselect
+        selectedHeroes = selectedHeroes.filter(h => h.id !== hero.id);
+        totalCost -= heroStats.cost;
+        totalPriority -= heroStats.priority;
+        selectedCount--
+        heroCard.classList.remove("selected");
+    } else if (selectedCount < config.amount && totalCost + heroStats.cost <= config.totalCost && totalPriority + heroStats.priority <= config.totalPriority) {
+        // Select
+        selectedHeroes.push(hero);
+        totalCost += heroStats.cost;
+        totalPriority += heroStats.priority;
+        selectedCount++
+        heroCard.classList.add("selected");
+    } else {
+        alert("You can't select more then 5 heroes , or your total cost/priority exceeds the limit.");
+    }
+
+    updateProgressBars();
+
+}
+
+
+
+function updateProgressBars() {
+
+
+    const heroCountBar = document.getElementById("hero-progress-bar");
+    const costBar = document.getElementById("cost-progress-bar");
+    const priorityBar = document.getElementById("priority-progress-bar");
+
+
+    const selectedPercentage = (selectedCount / config.amount) * 100;
+    const costPercentage = (totalCost / config.totalCost) * 100;
+    const priorityPercentage = (totalPriority / config.totalPriority) * 100;
+
+    heroCountBar.style.width = `${selectedPercentage}%`;
+    heroCountBar.textContent = `${selectedCount} / ${config.amount}`;
+
+    costBar.style.width = `${costPercentage}%`;
+    costBar.textContent = `Cost: ${totalCost} / ${config.totalCost}`;
+
+    priorityBar.style.width = `${priorityPercentage}%`;
+    priorityBar.textContent = `Priority: ${totalPriority} / ${config.totalPriority}`;
+
+}
+
+
+
+const draftsection = document.getElementById("draft-section");
+function showdraftt() {
+    battlesection.style.display = 'block'
+
+    if (selectedHeroes.length === 5 || selectedHeroes.length === 4 || selectedHeroes.length === 3 || selectedHeroes.length === 2 || selectedHeroes.length === 1) {
+        draftsection.classList.add("draftsection")
+        showdselected.style.display = 'none'
+
+    }
+
+    if (selectedHeroes.length === 0) {
+        draftsection.classList.remove("draftsection")
+
+        if (confirm("Please select heroes by clicking show draft button.\n By clicking OK Draft-Section will be hidden.")) {
+            draftsection.classList.add("draftsection")
+            setTimeout(() => {
+                alert("Please Refresh your page to start the draft")
+
+            }, 2000);
+        }
+        // If confirmed, draft hidden automatically
+        else {
+            return
+        }
+    }
+    // Fill the villain's list with random opponents from the opposite category
+    const villainCategory = selectedHeroes[0].biography.alignment === 'good' ? 'bad' : 'good';
+    villains = heroesData.filter(hero => hero.biography.alignment === villainCategory);
+    function shuffleArray(villains) {
+        for (let i = villains.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [villains[i], villains[j]] = [villains[j], villains[i]];
+        }
+
+
+        return villains;
+    }
+    // Match the number of heroes
+
+    // Sort both heroes and villains by priority first, then by cost
+    selectedHeroes.sort((a, b) => calculateHeroStats(a).priority - calculateHeroStats(b).priority || calculateHeroStats(a).cost - calculateHeroStats(b).cost);
+    villains.sort((a, b) => calculateHeroStats(a).priority - calculateHeroStats(b).priority || calculateHeroStats(a).cost - calculateHeroStats(b).cost);
+
+    displayBattle1(selectedHeroes, shuffleArray(villains).slice(0, selectedHeroes.length));
+}
+
+function displayBattle1(heroes, villains) {
+    const heroesListContainer = document.getElementById("heroes-list1");
+
+
+    heroesListContainer.innerHTML = "";
+
+
+    heroes.forEach((hero, index) => {
+        const villain = villains[index];
+
+        const heroCard = createHeroCard(hero);
+        // villainCard = createHeroCard(villain);
+
+        heroesListContainer.appendChild(heroCard);
+        // villainsListContainer.appendChild(villainCard);
+    });
+
+}
+
+
+
+function updateWins(hero, isWinner) {
+    if (isWinner) {
+        hero.wins += 1;
+        saveWinsToStorage(hero.id, hero.wins); // Save the new wins count
+    }
+}
+
+
+// Battle Button and Logic
+const fightbtn = document.getElementById("fight-btn")
+fightbtn.addEventListener("click", startBattle);
+
+function startBattle() {
+    sectionselectedcard.style.display = 'none'
+    fightbtn.style.display = 'none'
+
+    // Fill the villain's list with random opponents from the opposite category
+    const villainCategory = selectedHeroes[0].biography.alignment === 'good' ? 'bad' : 'good';
+    villains = heroesData.filter(hero => hero.biography.alignment === villainCategory);
+
+    function shuffleArray(villains) {
+        for (let i = villains.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [villains[i], villains[j]] = [villains[j], villains[i]];
+        }
+
+
+        return villains;
+    }
+    // Match the number of heroes
+
+    // Sort both heroes and villains by priority first, then by cost
+    selectedHeroes.sort((a, b) => calculateHeroStats(a).priority - calculateHeroStats(b).priority || calculateHeroStats(a).cost - calculateHeroStats(b).cost);
+    villains.sort((a, b) => calculateHeroStats(a).priority - calculateHeroStats(b).priority || calculateHeroStats(a).cost - calculateHeroStats(b).cost);
+
+    displayBattle(selectedHeroes, shuffleArray(villains).slice(0, selectedHeroes.length));
+}
+
+let villainCard;
+function displayBattle(heroes, villains) {
+    const heroesListContainer = document.getElementById("heroes-list");
+    const villainsListContainer = document.getElementById("villains-list");
+
+    heroesListContainer.innerHTML = "";
+    villainsListContainer.innerHTML = "";
+
+    heroes.forEach((hero, index) => {
+        const villain = villains[index];
+
+        const heroCard = createHeroCard(hero);
+        villainCard = createHeroCard(villain);
+
+        const fightResult = fight(hero, villain);
+
+        if (fightResult.heroDefeated) {
+            heroCard.classList.add("defeated");
+        } else {
+            heroCard.classList.add("winner");
+        }
+
+        if (fightResult.villainDefeated) {
+            villainCard.classList.add("defeated");
+        } else {
+            villainCard.classList.add("winner");
+        }
+
+        heroesListContainer.appendChild(heroCard);
+        villainsListContainer.appendChild(villainCard);
+
+        updateHallOfFame(hero, fightResult.heroDefeated ? 0 : 1);
+        updateHallOfFame(villain, fightResult.villainDefeated ? 0 : 1);
+    });
+
+    displayBattleResult();
+}
+
+function fight(hero, villain) {
+    const heroStats = calculateHeroStats(hero);
+    const villainStats = calculateHeroStats(villain);
+
+    let heroDefeated = false;
+    let villainDefeated = false;
+
+    // Hero attacks villain
+    if (heroStats.attack > villainStats.defense) {
+
+        villainDefeated = true;
+    }
+
+    if (heroStats.attack === villainStats.defense && heroStats.defense === villainStats.attack || villainStats.attack === heroStats.defense && villainStats.defense === heroStats.attack) {
+
+        villainDefeated = false;
+        heroDefeated = false;
+    }
+
+
+    // Villain attacks hero
+    if (villainStats.attack > heroStats.defense) {
+
+        heroDefeated = true;
+    }
+
+    return { heroDefeated, villainDefeated };
+}
+
+
+
+function updateHallOfFame(hero, wins) {
+    let found = hallOfFameData.find(entry => entry.id === hero.id);
+    if (found) {
+        found.wins += wins;
+    } else {
+        hallOfFameData.push({
+            id: hero.id,
+            name: hero.name,
+            image: hero.image.url,
+            Strength: hero.powerstats.strength,
+            Speed: hero.powerstats.speed,
+            Intelligence: hero.powerstats.intelligence,
+            Combat: hero.powerstats.combat,
+            Durability: hero.powerstats.durability,
+            Power: hero.powerstats.power,
+            race: hero.appearance.race,
+            alignment: hero.biography.alignment,
+            wins: wins,
+            priority: calculateHeroStats(hero).priority,
+            cost: calculateHeroStats(hero).cost,
+            defense: calculateHeroStats(hero).defense,
+            attack: calculateHeroStats(hero).attack
+
+        });
+    }
+}
+
+
+function displayBattleResult() {
+    const heroWinners = document.querySelectorAll("#heroes-list .winner").length;
+    const villainWinners = document.querySelectorAll("#villains-list .winner").length;
+    const resultContainer = document.getElementById("battle-result")
+
+    if (heroWinners === villainWinners) {
+        resultContainer.innerHTML = "Draw"
+        setTimeout(() => {
+
+            alert('Draw\nFor Next Game Please Refresh Your Page!')
+        }, 8000);
+    }
+    else if (heroWinners > villainWinners) {
+        resultContainer.innerHTML = "Your Heroes Win!"
+        setTimeout(() => {
+
+            alert('Your Heroes Win!\nFor Next Game Please Refresh Your Page!')
+        }, 8000);
+    }
+    else if (heroWinners < villainWinners) {
+        resultContainer.innerHTML = "Villan Win!"
+        setTimeout(() => {
+
+            alert('Villan Win!\nFor Next Game Please Refresh Your Page!')
+        }, 8000);
+    }
+    hallOfFame.style.display = 'block'
+
+    displayHallOfFame();
+}
+
+
+
+
+function displayHallOfFame() {
+    const hallOfFameSection = document.getElementById("hall-of-fame-section");
+    const hallOfFameList = document.getElementById("hall-of-fame-list");
+
+    hallOfFameSection.style.display = "block";  // Make hall of fame section visible
+    hallOfFameList.innerHTML = "";  // Clear previous list
+
+
+
+
+
+    hallOfFameData.sort((a, b) => b.wins - a.wins || b.priority - a.priority);
+
+    hallOfFameData.slice(0, config.hallOfFame).forEach(hero => {
+
+
+
+
+        const heroCard = document.createElement("div");
+        heroCard.classList.add("hero-card", "col-lg-5", "mt-4", "m-auto", "shadow-lg");
+        heroCard.innerHTML = `
+        <div class='d-flex justify-content-between align-items-center pt-2 pb-2'>  
+                <h5 class="card-title">${hero.name}</h5>
+                <p class="card-text round p-1 cost">${hero.cost}</p>
+            </div>
+            <img src="${hero.image}" class ="card-img pt-2 " alt="...">
+            <div class="card-body pt-3">
+                <p class='card-text'><b>${hero.alignment.toUpperCase()} / ${hero.race.toUpperCase()}</b></p>
+                <p class="card-text d-flex justify-content-between m-0"><strong>Strength:</strong> ${hero.Strength}</p>
+                <p class="card-text d-flex justify-content-between m-0"><strong>Power:</strong> ${hero.Sower}</p>
+                <p class="card-text d-flex justify-content-between m-0"><strong>Speed:</strong> ${hero.speed}</p>
+                <p class="card-text d-flex justify-content-between m-0"><strong>Intelligence:</strong> ${hero.Intelligence}</p>
+                <p class="card-text d-flex justify-content-between m-0"><strong>Combat:</strong> ${hero.Combat}</p>
+                <p class="card-text d-flex justify-content-between m-0"><strong>Durability:</strong> ${hero.Durability}</p>
+                  <p class="pt-2"><strong>Wins:</strong> ${hero.wins}</p>                
+            </div>
+            <div class='d-flex justify-content-between'>
+                <p class="card-text"><b class='priority'>${hero.priority}</b></p>
+                <p class="card-text"><b class='attack'>${hero.attack}</b> /<b class='defense'> ${hero.defense}</b></p>
+            </div>`
+            ;
+        hallOfFameList.appendChild(heroCard);
+    });
+}
+
