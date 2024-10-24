@@ -27,19 +27,27 @@
     <div class="container-fluid">
         <div class="container text-center bg-light border-top">
             <h1 class="mt-5">All Heroes</h1>
-            <div class="p-3 d-flex justify-content-center">
-                <input type="text" id="search-input" placeholder="Search by name..." />
-                <select id="race-select">
+           
+            <div class="m-4 d-flex justify-content-center row">
+                <div class="col m-0 p-0 mb-2">
+                    <input type="text"  id="search-input" placeholder="Search by name..." />
+                </div>
+                <div class="col m-0 p-0 mb-2">
+                <select id="race-select" >
                     <option value="">Select Race</option>
                 </select>
+            </div>
+            <div class="col m-0 p-0 mb-2">
                 <select id="alignment-filter">
                     <option value="">Select Alignment</option>
                     <option value="good">Good</option>
                     <option value="bad">Bad</option>
                     <option value="neutral">Neutral</option>
                 </select>
+            </div>
 
                 <!-- Sort dropdown -->
+                 <div  class="col m-0 p-0">
                 <select id="sort-select">
                     <option value="default">Sort By</option>
                     <option value="name-asc">Name (A-Z)</option>
@@ -47,13 +55,14 @@
                     <option value="id-asc">ID (Low to High)</option>
                     <option value="id-desc">ID (High to Low)</option>
                 </select>
-                <button type="button" id="refresh-button" class="btn btn-warning">Refresh-Button</button>
             </div>
+            </div>
+            <button type="button" id="refresh-button" class="btn btn-warning">Refresh-Button</button>
 
             <div id="hero-list" class="hero-list row">
                 <!-- Hero cards will be injected here -->
             </div>
-
+      
         </div>
     </div>
 
