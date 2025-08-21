@@ -24,7 +24,9 @@
 
 }
 
-
+.container-fluid{
+    background:no-repeat;
+}
 
 .hero-card.selected {
     border-color: green;
