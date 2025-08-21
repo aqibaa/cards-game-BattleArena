@@ -49,12 +49,12 @@ button {
     font-size: 1.2em;
 }
 
-.container-fluid {
+/* .container-fluid {
 background: url(🔥\ 4K\ Marvel\ Wallpapers\ on\ WallpaperSafari.jpg);
      background-repeat: no-repeat;
     background-attachment:fixed;
 
-}
+} */
 
 .cards {
     width: 19rem;
@@ -96,5 +96,6 @@ ul {
     width: 150px;
 
 }
+
 
 
