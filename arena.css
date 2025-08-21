@@ -24,15 +24,7 @@
 
 }
 
-.container-fluid {
-    background: url(🔥\ 4K\ Marvel\ Wallpapers\ on\ WallpaperSafari.jpg);
 
-    background-repeat: no-repeat;
-    background-attachment:fixed;
-;
-
-
-}
 
 .hero-card.selected {
     border-color: green;
@@ -110,3 +102,4 @@ ul {
     gap: 30px;
     padding: 0%;
 }
+
