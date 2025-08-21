@@ -51,6 +51,8 @@ button {
 
 .container-fluid {
 background: url(🔥\ 4K\ Marvel\ Wallpapers\ on\ WallpaperSafari.jpg);
+     background-repeat: no-repeat;
+    background-attachment:fixed;
 
 }
 
@@ -94,4 +96,5 @@ ul {
     width: 150px;
 
 }
+
 
